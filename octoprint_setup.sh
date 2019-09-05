@@ -192,8 +192,8 @@ install_octoprint() {
 
 }
 
-# Octoprint installation
-# Reference: https://github.com/foosel/OctoPrint/wiki/Setup-on-a-Raspberry-Pi-running-Raspbian
+# MJPG-Streamer installation
+# Reference: https://github.com/jacksonliam/mjpg-streamer
 install_mjpg_streamer() {
   logwrite " "
   logwrite "----- Installing MJPG-Streamer -----"
