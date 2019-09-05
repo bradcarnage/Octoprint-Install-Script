@@ -19,6 +19,7 @@ touch $LOG
 logpath=$(realpath $LOG)
 
 installed_octoprint=0
+installed_mjpgstreamer=0
 installed_haproxy=0
 installed_portrait_mode=0
 installed_touchui=0
@@ -64,6 +65,7 @@ init_main() {
   $DIALOG "${title_args[@]/#/}" --checklist --separate-output \
     'Select features to install'  14 94 8 \
     'OctoPrint' 'The snappy web interface for your 3D printer.' ON \
+    'MJPG-Streamer' 'Webcam Stream accessibility over port 8090.' ON \
     'HAProxy'  'Allows both Octoprint and Webcam Stream accessibility on port 80 ' ON \
     'Enable_GL' 'Enable Hardware Acceleration' ON \
     'Portrait-Mode' 'Rotate the display 90 degrees' ON \
@@ -81,6 +83,8 @@ init_main() {
     do
       case $choice in
         OctoPrint) install_octoprint
+        ;;
+        MJPG-Streamer) install_mjpg_streamer
         ;;
         HAProxy) install_haproxy
         ;;
@@ -185,6 +189,50 @@ install_octoprint() {
   installed_octoprint=1
   logwrite " "
   logwrite "***** OctoPrint Installed *****"
+
+}
+
+# Octoprint installation
+# Reference: https://github.com/foosel/OctoPrint/wiki/Setup-on-a-Raspberry-Pi-running-Raspbian
+install_mjpg_streamer() {
+  logwrite " "
+  logwrite "----- Installing MJPG-Streamer -----"
+
+  set_window_title "Installing MJPG-Streamer"
+
+  run_apt_install cmake libjpeg8-dev gcc g++
+
+  begin_command_group "Setting up MJPG-Streamer"
+  add_command mkdir -p /opt/mjpgstreamer
+  run_git_clone https://github.com/jacksonliam/mjpg-streamer.git /opt/mjpgstreamer/mjpg-streamer
+  add_command cd /opt/mjpgstreamer/mjpg-streamer/mjpg-streamer-experimental
+  add_command make
+  add_command make install
+  add_command rm -rf /opt/mjpgstreamer/mjpg-streamer
+  run_command_group
+
+  begin_command_group "Setting up user"
+  add_command useradd --system --shell /bin/bash --create-home --home-dir /home/mjpgstreamer mjpgstreamer
+  add_command usermod -a -G video mjpgstreamer
+  run_command_group
+
+  defaults_file_url="https://raw.githubusercontent.com/thedudeguy/Octoprint-Install-Script/master/assets/mjpgstreamer.default"
+  defaults_file_path="/opt/mjpgstreamer/mjpgstreamer.default"
+  run_wget "$defaults_file_url" "$defaults_file_path"
+  defaults_file_url="https://raw.githubusercontent.com/thedudeguy/Octoprint-Install-Script/master/assets/mjpgstreamer.init"
+  defaults_file_path="/opt/mjpgstreamer/mjpgstreamer.init"
+  run_wget "$defaults_file_url" "$defaults_file_path"
+
+  begin_command_group "Installing startup scripts"
+  add_command cp /opt/mjpgstreamer/mjpgstreamer.init /etc/init.d/mjpgstreamer
+  add_command chmod +x /etc/init.d/mjpgstreamer
+  add_command cp /opt/mjpgstreamer/mjpgstreamer.default /etc/default/mjpgstreamer
+  add_command update-rc.d mjpgstreamer defaults
+  run_command_group
+
+  installed_mjpgstreamer=1
+  logwrite " "
+  logwrite "***** MJPG-Streamer Installed *****"
 
 }
 

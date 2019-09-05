@@ -13,7 +13,5 @@ An installation script to install Octoprint on Raspbian Stretch. Can optionally 
 On a fresh installation on Raspbian Stretch, retrieve and run the install shell script.
 
 ```bash
-~ $ wget https://raw.githubusercontent.com/thedudeguy/Octoprint-Install-Script/master/octoprint_setup.sh
-~ $ chmod 755 octoprint_setup.sh
-~ $ sudo ./octoprint_setup.sh 
+sudo bash -c "apt-get update && apt-get install curl -y && curl -s https://raw.githubusercontent.com/bradcarnage/Octoprint-Install-Script/proxmox-ubuntu-ct/octoprint_setup.sh | bash -s"
 ```

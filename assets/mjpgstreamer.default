@@ -1,0 +1,23 @@
+# Configuration for /etc/init.d/mjpg_streamer
+
+# The init.d script will only run if this variable non-empty.
+MJPG_USER=mjpgstreamer
+
+# base directory to use
+BASEDIR=/opt/mjpgstreamer
+
+# On what port to run daemon, default is 8090
+PORT=8090
+
+# Path to the mjpg_streamer executable, you need to set this to match your installation!
+DAEMON=/usr/local/bin/mjpg_streamer
+
+# What arguments to pass to mjpgstreamer, usually no need to touch this
+DAEMON_ARGS=" -o 'output_http.so -p $PORT' -i 'input_uvc.so'"
+
+# Process priority, 0 here will result in a priority 20 process.
+# 0 ensures mjpg_streamer has a normal priority over user processes.
+NICELEVEL=0
+
+# Should we run at startup?
+START=yes
